@@ -1,0 +1,128 @@
+
+// Updated LoginPage.jsx
+import React from 'react';
+import './styles.css';
+import { useNavigate } from 'react-router-dom';
+
+const LoginPage = ({ setIsAuthenticated }) => {
+  const navigate = useNavigate();
+  const [isAdmin, setIsAdmin] = React.useState(false);
+  const [adminSecret, setAdminSecret] = React.useState('');
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    if (isAdmin) {
+      if (!adminSecret) {
+        alert('Admin secret required');
+        return;
+      }
+      // Store admin secret in sessionStorage
+      sessionStorage.setItem('adminSecret', adminSecret);
+      navigate('/admin');
+      return;
+    }
+
+    const email = e.target.email.value.trim();
+    const password = e.target.password.value.trim();
+
+    try {
+      const response = await fetch('http://localhost:8000/api/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email, password }),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        alert('Login successful!');
+        if (data.token) {
+          localStorage.setItem('token', data.token);
+        }
+        setIsAuthenticated(true);
+        navigate('/eventform');
+      } else {
+        const errorData = await response.json().catch(() => ({}));
+        alert(errorData.message || `Login failed (Status ${response.status})`);
+      }
+    } catch (error) {
+      console.error('Login error:', error);
+      alert('An error occurred. Please try again later.');
+    }
+  };
+
+  return (
+    <div className="particle-container">
+      {[...Array(5)].map((_, index) => (
+        <div className="particle" key={index}></div>
+      ))}
+
+      <div className="login-container">
+        <div className="background"></div>
+        <div className="login-form">
+          <h2 className="login-id">{isAdmin ? 'Admin Login' : 'Login'}</h2>
+          <form onSubmit={handleSubmit}>
+            {!isAdmin && <>
+              <label htmlFor="email">Email</label>
+              <input type="email" id="email" name="email" required />
+
+              <label htmlFor="password">Password</label>
+              <input type="password" id="password" name="password" required />
+            </>}
+            {isAdmin && <>
+              <label htmlFor="adminSecret">Admin Secret</label>
+              <input type="password" id="adminSecret" name="adminSecret" value={adminSecret} onChange={e => setAdminSecret(e.target.value)} required />
+            </>}
+            <button type="submit">{isAdmin ? 'LOGIN AS ADMIN' : 'LOGIN'}</button>
+
+            <div className="links">
+              {!isAdmin && <>
+                <a href="#">Forgot password?</a>
+                <a href="#">Forgot ID?</a>
+              </>}
+            </div>
+
+            <div style={{ marginTop: '15px', textAlign: 'center' }}>
+              {!isAdmin && <button
+                type="button"
+                onClick={() => navigate('/signup')}
+                style={{
+                  background: 'transparent',
+                  border: '1px solid white',
+                  color: 'white',
+                  padding: '8px 16px',
+                  borderRadius: '5px',
+                  cursor: 'pointer',
+                }}
+              >
+                Don't have an account? Sign Up
+              </button>}
+            </div>
+            <div style={{ marginTop: '10px', textAlign: 'center' }}>
+              <button
+                type="button"
+                onClick={() => setIsAdmin(a => !a)}
+                style={{
+                  background: isAdmin ? '#eee' : 'transparent',
+                  border: '1px solid #888',
+                  color: isAdmin ? '#333' : '#888',
+                  padding: '6px 12px',
+                  borderRadius: '5px',
+                  cursor: 'pointer',
+                  marginTop: '8px'
+                }}
+              >
+                {isAdmin ? 'User Login' : 'Login as Admin'}
+              </button>
+            </div>
+          </form>
+        </div>
+        <div className="powered-text">Powered by Stack-Nova(P) Ltd.</div>
+      </div>
+    </div>
+  );
+};
+
+export default LoginPage;
