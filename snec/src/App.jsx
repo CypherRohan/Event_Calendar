@@ -346,7 +346,7 @@ function Dashboard({ isAuthenticated, refetchEventsRef }) {
         </main>
         <FloatingActionButton onClick={handleAddEventClick} />
         {/* Event Details Modal/Bottom Sheet for selected date */}
-        {selectedDateStr && (
+        {selectedDateStr && !menuOpen && (
           <div
             style={{
               position: 'absolute',
