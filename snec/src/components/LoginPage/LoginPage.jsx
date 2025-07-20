@@ -58,28 +58,26 @@ const LoginPage = ({ setIsAuthenticated }) => {
   return (
     <div className="particle-container">
       {/* Back arrow for mobile/tablet */}
-      {window.innerWidth < 1024 && (
-        <button
-          onClick={() => navigate(-1)}
-          aria-label="Go back"
-          style={{
-            position: 'absolute',
-            top: 18,
-            left: 18,
-            background: 'none',
-            border: 'none',
-            color: '#fff',
-            fontSize: 28,
-            zIndex: 10,
-            cursor: 'pointer',
-            padding: 4,
-            borderRadius: 8,
-            boxShadow: '0 1px 4px #0003',
-          }}
-        >
-          &#8592;
-        </button>
-      )}
+      <button
+        onClick={() => navigate('/')}
+        aria-label="Go to calendar"
+        style={{
+          position: 'absolute',
+          top: 18,
+          left: 18,
+          background: 'none',
+          border: 'none',
+          color: '#fff',
+          fontSize: 28,
+          zIndex: 10,
+          cursor: 'pointer',
+          padding: 4,
+          borderRadius: 8,
+          boxShadow: '0 1px 4px #0003',
+        }}
+      >
+        &#8592;
+      </button>
       {[...Array(5)].map((_, index) => (
         <div className="particle" key={index}></div>
       ))}

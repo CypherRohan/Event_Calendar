@@ -60,6 +60,44 @@ function FloatingActionButton({ onClick }) {
   );
 }
 
+function BackToTopButton() {
+  const [visible, setVisible] = useState(false);
+  useEffect(() => {
+    function handleScroll() {
+      setVisible(window.scrollY > 100);
+    }
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+  if (window.innerWidth >= 1024) return null;
+  return visible ? (
+    <button
+      aria-label="Back to top"
+      onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+      style={{
+        position: 'fixed',
+        right: 20,
+        bottom: 80,
+        width: 44,
+        height: 44,
+        borderRadius: '50%',
+        background: '#1976d2',
+        color: '#fff',
+        border: 'none',
+        boxShadow: '0 2px 8px #0003',
+        zIndex: 2000,
+        fontSize: 24,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        cursor: 'pointer',
+      }}
+    >
+      &#8593;
+    </button>
+  ) : null;
+}
+
 function Dashboard({ isAuthenticated, refetchEventsRef }) {
   const navigate = useNavigate();
   const [selectedDateStr, setSelectedDateStr] = useState(null);
@@ -438,6 +476,7 @@ function Dashboard({ isAuthenticated, refetchEventsRef }) {
             </div>
           </div>
         )}
+        <BackToTopButton />
       </div>
     );
   }
@@ -559,8 +598,8 @@ function Dashboard({ isAuthenticated, refetchEventsRef }) {
             {customRangeMode ? (
               <>
                 
-                <label style={{ marginBottom: 8 }}>Start Date: <input type="date" value={customStart} onChange={e => setCustomStart(e.target.value)} /></label>
-                <label style={{ marginBottom: 16 }}>End Date: <input type="date" value={customEnd} onChange={e => setCustomEnd(e.target.value)} /></label>
+                <label className="l1" style={{ marginBottom: 8, color: '#000' }}>Start Date: <input type="date" value={customStart} onChange={e => setCustomStart(e.target.value)} /></label>
+                <label className="l1" style={{ marginBottom: 16, color: '#000' }}>End Date: <input type="date" value={customEnd} onChange={e => setCustomEnd(e.target.value)} /></label>
                 <button
                   className="download-mode"
                   style={{ background: '#e53940', color: '#fff', fontWeight: 'bold', marginBottom: 16 }}
@@ -590,6 +629,7 @@ function Dashboard({ isAuthenticated, refetchEventsRef }) {
           </div>
         </div>
       )}
+      <BackToTopButton />
     </div>
   );
 }
