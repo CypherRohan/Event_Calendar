@@ -86,11 +86,60 @@ export default function YearView({
   if (!isDesktop) {
     return (
       <div style={{ background: '#111', minHeight: '100vh', color: '#fff', paddingBottom: 32 }}>
-        <div style={{ textAlign: 'center', fontSize: 32, fontWeight: 700, color: '#e53935', margin: '24px 0 8px 0' }}>{year}</div>
+        {/* Year navigation bar for mobile/tablet */}
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          gap: 16,
+          margin: '24px 0 8px 0',
+        }}>
+          <button
+            onClick={() => {
+              setYear(prev => prev - 1);
+              setViewDate(prev => ({ ...prev, year: year - 1 }));
+            }}
+            style={{
+              background: 'none',
+              border: 'none',
+              color: '#e53935',
+              fontSize: 28,
+              fontWeight: 700,
+              cursor: 'pointer',
+              padding: '4px 12px',
+              borderRadius: 8,
+              transition: 'background 0.2s',
+            }}
+            aria-label="Previous year"
+          >
+            &#60;
+          </button>
+          <span style={{ fontSize: 32, fontWeight: 700, color: '#e53935', minWidth: 80, textAlign: 'center' }}>{year}</span>
+          <button
+            onClick={() => {
+              setYear(prev => prev + 1);
+              setViewDate(prev => ({ ...prev, year: year + 1 }));
+            }}
+            style={{
+              background: 'none',
+              border: 'none',
+              color: '#e53935',
+              fontSize: 28,
+              fontWeight: 700,
+              cursor: 'pointer',
+              padding: '4px 12px',
+              borderRadius: 8,
+              transition: 'background 0.2s',
+            }}
+            aria-label="Next year"
+          >
+            &#62;
+          </button>
+        </div>
         <div style={{
           display: 'grid',
-          gridTemplateColumns: 'repeat(3, 1fr)',
-          gap: 0,
+          gridTemplateColumns: 'repeat(2, 1fr)',
+          gap: 12,
           width: '100%',
           maxWidth: 600,
           margin: '0 auto',
@@ -100,7 +149,7 @@ export default function YearView({
             return (
               <div
                 key={month}
-                style={{ padding: '8px 0', cursor: 'pointer' }}
+                style={{ padding: '8px 0', cursor: 'pointer', background: '#181818', borderRadius: 10, margin: 4 }}
                 onClick={() => handleMonthClick(monthIdx)}
               >
                 <div style={{

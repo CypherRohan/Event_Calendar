@@ -3,7 +3,7 @@ import { getEventsForDate } from "../../utils/eventUtils";
 
 export default function EventDetails({ dateStr, getEventColor, events = [] }) {
   const dayEvents = getEventsForDate(dateStr, events);
-  if (!dayEvents.length) return <p style={{ textAlign: "center", opacity: 0.7 }}>No events for this date.</p>;
+  if (!dayEvents.length) return <p style={{ textAlign: "center", opacity: 0.7, color: '#111' }}>No events for this date.</p>;
 
   return (
     <div
