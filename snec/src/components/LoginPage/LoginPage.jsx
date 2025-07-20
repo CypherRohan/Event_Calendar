@@ -3,9 +3,11 @@
 import React from 'react';
 import './styles.css';
 import { useNavigate } from 'react-router-dom';
+import { useIsDesktop } from '../../App'; // Import the responsive hook if available, or define locally
 
 const LoginPage = ({ setIsAuthenticated }) => {
   const navigate = useNavigate();
+  const isDesktop = typeof useIsDesktop === 'function' ? useIsDesktop(1024) : window.innerWidth >= 1024;
   const [isAdmin, setIsAdmin] = React.useState(false);
   const [adminSecret, setAdminSecret] = React.useState('');
 
@@ -121,6 +123,34 @@ const LoginPage = ({ setIsAuthenticated }) => {
         </div>
         <div className="powered-text">Powered by Stack-Nova(P) Ltd.</div>
       </div>
+      {/* Floating Action Button for mobile/tablet */}
+      {!isDesktop && (
+        <button
+          className="fab touch-target"
+          aria-label="Add an event"
+          style={{
+            position: 'fixed',
+            right: 'var(--space-lg, 24px)',
+            bottom: 'var(--space-lg, 24px)',
+            zIndex: 100,
+            background: 'var(--color-primary, #1976d2)',
+            color: 'var(--color-primary-contrast, #fff)',
+            border: 'none',
+            borderRadius: '50%',
+            width: '56px',
+            height: '56px',
+            boxShadow: '0 4px 16px var(--color-shadow, #0003)',
+            fontSize: '2rem',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            cursor: 'pointer',
+          }}
+          onClick={() => navigate('/event-form')}
+        >
+          +
+        </button>
+      )}
     </div>
   );
 };

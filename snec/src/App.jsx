@@ -19,8 +19,7 @@ import CompactMonthView from './components/calendar/CompactMonthView';
 import MobileMenuDrawer from './components/LoginPage/MobileMenuDrawer';
 import MobileHeader from './components/LoginPage/MobileHeader';
 
-// === Responsive Hook ===
-function useIsDesktop(breakpoint = 1024) {
+export function useIsDesktop(breakpoint = 1024) {
   const [isDesktop, setIsDesktop] = useState(window.innerWidth >= breakpoint);
   useEffect(() => {
     const handleResize = () => setIsDesktop(window.innerWidth >= breakpoint);
@@ -287,7 +286,6 @@ function Dashboard({ isAuthenticated, refetchEventsRef }) {
           }}
         >
           {[
-            { key: 'agenda', label: 'Agenda' },
             { key: 'month', label: 'Month' },
             { key: 'week', label: 'Week' },
             { key: 'year', label: 'Year' },
