@@ -979,6 +979,9 @@ html::-webkit-scrollbar,
   flex: 1;
   /* overflow: hidden; */
 }
+.yearview-grid::-webkit-scrollbar{
+overflow-y: hidden;
+}
 
 .yearview-month-block {
   background: #f8fafd;
@@ -1576,7 +1579,7 @@ input[type='date']:focus {
     align-items: center;
     justify-content: space-between;
     gap: 0;
-    width: 100vw !important;
+    width: 100% !important;
     left: 50%;
     padding: 0 8px;
     background: var(--color-bg);

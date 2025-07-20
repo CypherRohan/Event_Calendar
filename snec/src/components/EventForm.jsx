@@ -111,7 +111,7 @@ export default function EventForm({ onEventAdded }) {
             </div>
             {/* Title */}
             <div className="form-group">
-              <label htmlFor="title">Title</label>
+              <label id="title-view" htmlFor="title">Title</label>
               <input
                 type="text"
                 id="title"

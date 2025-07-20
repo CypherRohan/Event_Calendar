@@ -13,6 +13,7 @@ Container for entire page
 }
 h3{
   text-align: center;
+  overflow-y: hidden;
 }
 
 /* Form container styling */
@@ -79,6 +80,12 @@ h3{
 
 .main input[type="number"] {
   -moz-appearance: textfield;
+}
+
+.main input[type="date"] {
+  width: 100%;
+  box-sizing: border-box;
+  overflow-x: hidden;
 }
 
 
@@ -152,17 +159,27 @@ h3{
   justify-content: center;
   overflow-y: hidden;
 }
-
+#h1-span{
+  overflow-y: hidden;
+}
+#event-title{
+overflow-y: hidden;
+}
 .main p {
   text-align: center;
   margin-bottom: 30px;
   font-size: 1rem;
   color: #eee;
+  overflow-y: hidden;
+}
+.main p::-webkit-scrollbar {
+  display: none;            /* Chrome, Safari, Opera */
 }
 
 
+
 .event-scroll-container {
-  
+  overflow-x: hidden;
   width: 100vw;
   height: 100vh;
   max-height: 100vh;
