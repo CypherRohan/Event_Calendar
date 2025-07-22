@@ -118,6 +118,8 @@ export default function CalendarContainer() {
     }
   }
 
+  console.log("CalendarContainer: calendarView", calendarView, "viewDate", viewDate);
+
   return (
     <div className="calendar-container">
       {calendarView === "year" && (

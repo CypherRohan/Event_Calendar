@@ -24,6 +24,7 @@ export default function CompactMonthView({
   onPrevMonth,
   onNextMonth
 }) {
+  console.log("CompactMonthView props:", { year, month });
   const daysInMonth = getDaysInMonth(year, month);
   const firstDay = getFirstDayOfWeek(year, month);
   const monthName = new Date(year, month).toLocaleString(undefined, { month: "long" });

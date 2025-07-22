@@ -98,11 +98,9 @@ function BackToTopButton() {
   ) : null;
 }
 
-function Dashboard({ isAuthenticated, refetchEventsRef }) {
+function Dashboard({ isAuthenticated, refetchEventsRef, viewYear, setViewYear, viewMonth, setViewMonth, setViewDate }) {
   const navigate = useNavigate();
   const [selectedDateStr, setSelectedDateStr] = useState(null);
-  const [viewYear, setViewYear] = useState(new Date().getFullYear());
-  const [viewMonth, setViewMonth] = useState(new Date().getMonth());
   const [calendarView, setCalendarView] = useState("month");
   const [events, setEvents] = useState([]);
   const [showDownloadDialog, setShowDownloadDialog] = useState(false);
@@ -376,8 +374,7 @@ function Dashboard({ isAuthenticated, refetchEventsRef }) {
           {mobileView === 'year' && (
             <YearView
               initialYear={viewYear}
-              setViewMonth={setViewMonth}
-              setViewYear={setViewYear}
+              setViewDate={setViewDate}
               setCalendarView={() => setMobileView('month')}
             />
           )}
@@ -578,8 +575,7 @@ function Dashboard({ isAuthenticated, refetchEventsRef }) {
           {calendarView === "year" && (
             <YearView
               initialYear={viewYear}
-              setViewMonth={setViewMonth}
-              setViewYear={setViewYear}
+              setViewDate={setViewDate}
               setCalendarView={setCalendarView}
             />
           )}
@@ -637,6 +633,12 @@ function Dashboard({ isAuthenticated, refetchEventsRef }) {
 export default function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const refetchEventsRef = React.useRef(null);
+  const [viewYear, setViewYear] = useState(new Date().getFullYear());
+  const [viewMonth, setViewMonth] = useState(new Date().getMonth());
+  const setViewDate = ({ year, month }) => {
+    setViewYear(year);
+    setViewMonth(month);
+  };
   return (
     <Router>
       <Routes>
@@ -645,7 +647,7 @@ export default function App() {
         <Route path="/event-form" element={isAuthenticated ? <EventForm onEventAdded={() => {
           if (refetchEventsRef.current) refetchEventsRef.current();
         }} /> : <Navigate to="/login" />} />
-        <Route path="/" element={<Dashboard isAuthenticated={isAuthenticated} refetchEventsRef={refetchEventsRef} />} />
+        <Route path="/" element={<Dashboard isAuthenticated={isAuthenticated} refetchEventsRef={refetchEventsRef} viewYear={viewYear} setViewYear={setViewYear} viewMonth={viewMonth} setViewMonth={setViewMonth} setViewDate={setViewDate} />} />
         <Route path="*" element={<Navigate to="/" replace />} />
         <Route path="/admin" element={<AdminPanel />} />
       </Routes>

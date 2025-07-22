@@ -51,7 +51,7 @@ export default function YearView({
     if (quarter === 0) {
       setQuarter(2);
       setYear(prev => prev - 1);
-      setViewDate(prev => ({ ...prev, year: prev.year - 1 }));
+      setViewDate({ year: prev.year - 1, month: 0 });
     } else {
       setQuarter(prev => prev - 1);
     }
@@ -59,14 +59,14 @@ export default function YearView({
 
   const handlePrevYear = () => {
     setYear(prev => prev - 1);
-    setViewDate(prev => ({ ...prev, year: prev.year - 1 }));
+    setViewDate({ year: prev.year - 1, month: 0 });
   };
 
   const handleNextQuarter = () => {
     if (quarter === 2) {
       setQuarter(0);
       setYear(prev => prev + 1);
-      setViewDate(prev => ({ ...prev, year: prev.year + 1 }));
+      setViewDate({ year: prev.year + 1, month: 0 });
     } else {
       setQuarter(prev => prev + 1);
     }
@@ -74,12 +74,14 @@ export default function YearView({
 
   const handleNextYear = () => {
     setYear(prev => prev + 1);
-    setViewDate(prev => ({ ...prev, year: prev.year + 1 }));
+    setViewDate({ year: prev.year + 1, month: 0 });
   };
 
   const handleMonthClick = (monthIndex) => {
-    setViewDate(prev => ({ ...prev, year: year, month: monthIndex }));
+    console.log("Month clicked:", monthIndex, "Year:", year);
+    setViewDate({ year, month: monthIndex });
     setCalendarView("month");
+    console.log("Switching to month view");
   };
 
   // --- MOBILE/TABLET: iOS-style Year View ---
@@ -97,7 +99,7 @@ export default function YearView({
           <button
             onClick={() => {
               setYear(prev => prev - 1);
-              setViewDate(prev => ({ ...prev, year: year - 1 }));
+              setViewDate({ year: year - 1, month: 0 });
             }}
             style={{
               background: 'none',
@@ -118,7 +120,7 @@ export default function YearView({
           <button
             onClick={() => {
               setYear(prev => prev + 1);
-              setViewDate(prev => ({ ...prev, year: year + 1 }));
+              setViewDate({ year: year + 1, month: 0 });
             }}
             style={{
               background: 'none',
