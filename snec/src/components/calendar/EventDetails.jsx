@@ -28,8 +28,13 @@ export default function EventDetails({ dateStr, getEventColor, events = [] }) {
           <div className="event-time">{ev.time || "Time not specified"}</div>
           <div className="event-desc">
             {ev.club && <>By <strong>{ev.club}</strong><br /></>}
-            {ev.results && <><strong>Results:</strong> {ev.results}<br /></>}
-            {ev.desc || "No description provided."}
+            {ev.results ? (<>
+                <strong>Description:</strong> {ev.results}<br />
+            </>) : (
+              <p>No description provided.</p>
+            )
+            }
+            {/* {ev.desc ? ev.desc : "No description provided."} */}
           </div>
         </div>
       ))}

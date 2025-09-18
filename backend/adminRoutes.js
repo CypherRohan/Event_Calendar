@@ -3,6 +3,7 @@ const router = express.Router();
 const permission = require('./models/permission');
 const pendingSignup = require('./models/pendingSignup');
 const User = require('./models/user');
+const Listing = require('./models/listing');
 
 // Simple admin auth middleware (replace with JWT in production)
 const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'changeme';
@@ -85,6 +86,19 @@ router.delete('/user', async (req, res) => {
     res.json({ message: 'User deleted and permission removed' });
   } catch (err) {
     res.status(500).json({ message: 'Error deleting user', error: err.message });
+  }
+});
+
+// Delete event by ID
+router.delete('/event', async (req, res) => {
+  const { id } = req.body;
+  if (!id) return res.status(400).json({ message: 'Event ID required' });
+  try {
+    const deleted = await Listing.findByIdAndDelete(id);
+    if (!deleted) return res.status(404).json({ message: 'Event not found' });
+    res.json({ message: 'Event deleted successfully' });
+  } catch (err) {
+    res.status(500).json({ message: 'Error deleting event', error: err.message });
   }
 });
 

@@ -303,15 +303,17 @@ html::-webkit-scrollbar,
 .section-title {
   font-weight: bold;
   margin-bottom: 8px;
-  color: #080808;
+  color: #ffffff;
   font-size: 1.1rem;
   text-align: center;
+  overflow: hidden;
 }
 
 .sidebar .section-title {
-  margin-bottom: 12px;
+  margin-bottom: 5px;
   padding-bottom: 4px;
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  overflow: hidden;
 }
 
 .sidebar .CompletedEventsDropdown {
@@ -322,6 +324,13 @@ html::-webkit-scrollbar,
 .sidebar .CompletedEventsDropdown > div > div {
   max-width: 100%;
   word-wrap: break-word;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  scroll-behavior: smooth;
+  /* overflow: hidden; */
+}
+.sidebar.CompletedEventsDropdown::-webkit-scrollbar{
+  display: none;
 }
 
 /* BUTTON HOVER EFFECT Start*/
@@ -707,7 +716,7 @@ html::-webkit-scrollbar,
     padding: 2px 0 2px 0;
   }
 }
-
+/* Mobile View */
 @media (max-width: 700px) {
   .app-header {
     flex-direction: column;
@@ -887,7 +896,7 @@ html::-webkit-scrollbar,
     border-radius: 10px;
   }
   .weekview-day-label, .weekview-date-label {
-    width: 44px;
+    /* width: 44px; */
     font-weight: bold;
     font-size: 1.1rem;
     text-align: left;
@@ -912,6 +921,7 @@ html::-webkit-scrollbar,
   z-index: 1;
   overflow: hidden; /* Prevent scrollbars */
 }
+
 
 .weekview-day-row::before,
 .weekview-day-row::after {
@@ -949,6 +959,12 @@ html::-webkit-scrollbar,
 .weekview-day-row:hover::after {
   opacity: 1;
 }
+
+.weekview-day-name{
+width: 3rem;
+}
+
+
 
 .yearview-container {
   width: 100%;
@@ -993,7 +1009,7 @@ overflow-y: hidden;
   align-items: center;
   min-width: 220px;   /* Increase for wider blocks */
   min-height: 230px;
-  
+  overflow: hidden;
 }
 
 .yearview-month-title {
@@ -1005,6 +1021,7 @@ overflow-y: hidden;
   overflow-y: hidden;
   line-height: 1.2;         /* Add this */
   padding-bottom: 10px;
+
 }
 
 .yearview-month-calendar {
@@ -1016,6 +1033,7 @@ overflow-y: hidden;
   display: flex;
   justify-content: space-between;
   margin-bottom: 2px;
+  overflow: hidden;
 }
 
 .yearview-weekday {
@@ -1033,6 +1051,7 @@ overflow-y: hidden;
    overflow: auto; /* or scroll if you always want scrollability */
   scrollbar-width: none; /* Firefox */
   -ms-overflow-style: none;  /* IE 10+ */
+  overflow: hidden;
 }
 
 .yearview-week {
@@ -1055,6 +1074,7 @@ overflow-y: hidden;
   background: transparent;
   margin: 1px 0;
   transition: background 0.2s, color 0.2s;
+  overflow: hidden;
   
 }
 
@@ -1264,15 +1284,17 @@ input[type='date']:focus {
 }
 
 .completed-events-dropdown-scrollable {
-  max-height: 11.5em; /* 5 items * 2.3em per item, adjust as needed */
+  max-height: 11.5em;
   overflow-y: auto;
   width: 100%;
-  scrollbar-width: thin; /* Firefox */
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none;  /* Internet Explorer 10+ */
 }
+
 .completed-events-dropdown-scrollable::-webkit-scrollbar {
-  width: 6px;
-  background: transparent;
+  display: none; /* Chrome, Safari, Opera */
 }
+
 
 .right-panel .download-btn {
   max-height: 3rem;
@@ -1449,6 +1471,7 @@ input[type='date']:focus {
   .section-title {
     font-size: 1rem;
     margin-bottom: 4px;
+    overflow: hidden;
   }
   .download-btn {
     font-size: 0.95rem;
@@ -1830,4 +1853,66 @@ input[type='date']:focus {
   -webkit-appearance: none;
   -moz-appearance: none;
   overflow: visible;
+}
+
+.up {
+  overflow-y: auto;           /* Enables vertical scrolling */
+  scrollbar-width: none;      /* Hides scrollbar in Firefox */
+  -ms-overflow-style: none;   /* Hides scrollbar in Internet Explorer 10+ */
+}
+
+.up::-webkit-scrollbar {
+  display: none;              /* Hides scrollbar in Chrome, Safari, Opera */
+}
+
+
+
+.completed-event-card-outer{
+   scrollbar-width: none;
+  -ms-overflow-style: none;
+  scroll-behavior: smooth; 
+  max-height: 500px;
+}
+
+
+.completed-event-card-outer::-webkit-scrollbar{
+    display: none; 
+}
+
+.modal-1{
+  padding: '16px';
+  max-Height: '80px';
+  text-align: center;
+}
+.modal-1{
+scrollbar-width: none;
+  -ms-overflow-style: none;
+  scroll-behavior: smooth; 
+}
+.modal-1::-webkit-scrollbar{
+  display: none;
+}
+
+.left-box {
+ scrollbar-width: none;
+  -ms-overflow-style: none;
+  scroll-behavior: smooth; 
+   /* max-height: 8em; */
+   width: 100%;
+   margin: 1px;
+}
+
+.left-box::-webkit-scrollbar {
+  display: none; /* Chrome, Safari, Opera */
+}
+
+.section-title-1{
+  overflow: hidden;
+  /* max-height: 11em; */
+  padding: 1px;
+  text-align: center;
+  margin-bottom: 50px;
+  color: #090909;
+  font-weight: 700;
+  
 }

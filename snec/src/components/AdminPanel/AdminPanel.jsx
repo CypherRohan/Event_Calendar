@@ -169,7 +169,10 @@ export default function AdminPanel() {
     <div className="admin-panel-container">
       <div className="admin-panel-header">
         <h2>Admin Panel</h2>
-        <button onClick={handleLogout} className="admin-action-btn">Logout</button>
+        <div style={{ display: 'flex', gap: 8 }}>
+          <button onClick={() => navigate('/admin/delete-events')} className="admin-action-btn">Delete Events</button>
+          <button onClick={handleLogout} className="admin-action-btn">Logout</button>
+        </div>
       </div>
       {message && <div style={{ color: 'green', marginBottom: 12 }}>{message}</div>}
       {error && <div style={{ color: 'red', marginBottom: 12 }}>{error}</div>}

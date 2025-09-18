@@ -77,7 +77,7 @@ export default function WeekView({
                   className="weekview-day-number"
                   style={{ color: '#111' }}
                 >
-                  {date.getDate()}
+                  {date.getDate().toString().padStart(2, '0')}
                 </span>
               </div>
               <div className="weekview-events">

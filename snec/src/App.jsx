@@ -1,4 +1,3 @@
-// Updated App.js with compact layout and download button behavior
 import React, { useState, useEffect } from "react";
 import { BrowserRouter as Router, Routes, Route, Navigate, useNavigate } from "react-router-dom";
 import { getEventColor } from "./utils/eventUtils";
@@ -18,6 +17,7 @@ import AgendaView from './components/calendar/AgendaView';
 import CompactMonthView from './components/calendar/CompactMonthView';
 import MobileMenuDrawer from './components/LoginPage/MobileMenuDrawer';
 import MobileHeader from './components/LoginPage/MobileHeader';
+import DeleteEventContainer from './components/AdminPanel/DeleteEventContainer';
 
 export function useIsDesktop(breakpoint = 1024) {
   const [isDesktop, setIsDesktop] = useState(window.innerWidth >= breakpoint);
@@ -117,9 +117,7 @@ function Dashboard({ isAuthenticated, refetchEventsRef, viewYear, setViewYear, v
   const fetchEvents = async () => {
     try {
       const response = await fetch("http://localhost:8000/api/events");
-      if (!response.ok) {
-        throw new Error("Failed to fetch events");
-      }
+      if (!response.ok) throw new Error("Failed to fetch events");
       const data = await response.json();
       const mappedEvents = data.map(ev => ({
         date: ev.date ? ev.date.split("T")[0] : "",
@@ -147,9 +145,7 @@ function Dashboard({ isAuthenticated, refetchEventsRef, viewYear, setViewYear, v
 
   const weekDate = calendarView === "week" && !selectedDateStr
     ? new Date()
-    : selectedDateStr
-      ? new Date(selectedDateStr)
-      : new Date(viewYear, viewMonth, 1);
+    : selectedDateStr ? new Date(selectedDateStr) : new Date(viewYear, viewMonth, 1);
 
   const today = new Date();
   today.setHours(0, 0, 0, 0);
@@ -158,27 +154,17 @@ function Dashboard({ isAuthenticated, refetchEventsRef, viewYear, setViewYear, v
     const eventDate = new Date(e.date);
     const eventDateTime = new Date(e.date + 'T' + (e.time || '00:00'));
     const now = new Date();
-    
-    // If event is on a future date, it's upcoming
-    if (eventDate > today) {
-      return true;
-    }
-    
-    // If event is today, check if the time hasn't passed yet
-    if (eventDate.getTime() === today.getTime()) {
-      return eventDateTime > now;
-    }
-    
+    if (eventDate > today) return true;
+    if (eventDate.getTime() === today.getTime()) return eventDateTime > now;
     return false;
   });
 
-  // Filter completed events for the selected month and year, and pass only those to CompletedEventsDropdown. Use viewMonth and viewYear for filtering.
   const completedEventsForSelectedMonth = events.filter(e => {
     const eventDate = new Date(e.date);
     return (
       eventDate.getMonth() === viewMonth &&
       eventDate.getFullYear() === viewYear &&
-      eventDate < today // Only past events
+      eventDate < today
     );
   });
 
@@ -199,7 +185,6 @@ function Dashboard({ isAuthenticated, refetchEventsRef, viewYear, setViewYear, v
       return newMonth;
     });
   };
-
 
   const handlePrevWeek = () => setSelectedDateStr(dateStr => {
     const d = dateStr ? new Date(dateStr) : new Date();
@@ -265,7 +250,6 @@ function Dashboard({ isAuthenticated, refetchEventsRef, viewYear, setViewYear, v
     setCustomEnd("");
   };
 
-  // Helper for mobile view menu
   const handleViewMenuSelect = (view) => {
     setCalendarView(view);
     setShowViewMenu(false);
@@ -279,205 +263,211 @@ function Dashboard({ isAuthenticated, refetchEventsRef, viewYear, setViewYear, v
   const [showUpcoming, setShowUpcoming] = useState(false);
   const [showCompleted, setShowCompleted] = useState(false);
 
-  if (!isDesktop) {
-    // === MOBILE/TABLET: Single-column, mobile-first layout ===
-    return (
-      <div className="app-bg">
-        <MobileHeader onMenuClick={() => setMenuOpen(true)} />
-        <MobileMenuDrawer
-          open={menuOpen}
-          onClose={() => setMenuOpen(false)}
-          upcomingEvents={upcomingEvents}
-          completedEvents={completedEventsForSelectedMonth}
-          onSelectAgenda={() => { setMobileView('agenda'); setMenuOpen(false); }}
-          onSelectMonth={() => { setMobileView('month'); setMenuOpen(false); }}
-          onSelectWeek={() => { setMobileView('week'); setMenuOpen(false); }}
-          onSelectYear={() => { setMobileView('year'); setMenuOpen(false); }}
-          onSelectCompletedEvent={setSelectedCompletedEvent}
-          onDownloadReport={() => { setShowDownloadDialog(true); setMenuOpen(false); }}
-          onAddEvent={handleAddEventClick}
-          onLogin={() => { navigate('/login'); setMenuOpen(false); }}
-          onSignup={() => { navigate('/signup'); setMenuOpen(false); }}
-          isAuthenticated={isAuthenticated}
-          isAdmin={false} // Set to true if user is admin
-          onAdminPanel={() => { navigate('/admin'); setMenuOpen(false); }}
-        />
-        <nav
-          aria-label="View switcher"
-          style={{
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            gap: 4,
-            margin: '0.5rem auto 1rem auto',
-            width: '100vw',
-            left: '50%',
-            transform: 'translateX(-50%)',
-            background: '#f5f6fa',
-            borderRadius: 12,
-            boxShadow: '0 1px 4px #0001',
-            padding: 4,
-            position: 'relative',
-            overflowX: 'auto',
-          }}
-        >
-          {[
-            { key: 'month', label: 'Month' },
-            { key: 'week', label: 'Week' },
-            { key: 'year', label: 'Year' },
-          ].map((view) => (
-            <button
-              key={view.key}
-              onClick={() => setMobileView(view.key)}
-              aria-pressed={mobileView === view.key}
-              style={{
-                flex: 1,
-                padding: '0.7rem 0',
-                background: mobileView === view.key ? '#1976d2' : 'transparent',
-                color: mobileView === view.key ? '#fff' : '#1976d2',
-                border: 'none',
-                borderRadius: 8,
-                fontWeight: 600,
-                fontSize: '1rem',
-                cursor: 'pointer',
-                transition: 'background 0.2s, color 0.2s',
-                outline: mobileView === view.key ? '2px solid #1976d2' : 'none',
-              }}
-            >
-              {view.label}
-            </button>
-          ))}
-        </nav>
-        <main style={{ width: '100%', maxWidth: 600, margin: '0 auto' }}>
-          {mobileView === 'agenda' && <AgendaView events={events} />}
-          {mobileView === 'month' && (
-            <CompactMonthView
-              year={viewYear}
-              month={viewMonth}
-              events={events}
-              selectedDateStr={selectedDateStr}
-              onSelectDate={setSelectedDateStr}
-              onPrevMonth={handlePrevMonth}
-              onNextMonth={handleNextMonth}
-            />
-          )}
-          {mobileView === 'week' && (
-            <WeekView
-              weekDate={weekDate}
-              selectedDate={selectedDateStr}
-              onSelectDate={setSelectedDateStr}
-              onPrevWeek={handlePrevWeek}
-              onNextWeek={handleNextWeek}
-              events={events}
-            />
-          )}
-          {mobileView === 'year' && (
-            <YearView
-              initialYear={viewYear}
-              setViewDate={setViewDate}
-              setCalendarView={() => setMobileView('month')}
-            />
-          )}
-        </main>
-        <FloatingActionButton onClick={handleAddEventClick} />
-        {/* Event Details Modal/Bottom Sheet for selected date */}
-        {selectedDateStr && !menuOpen && (
-          <div
+  // --- CRUCIAL FIX: Filter events only for selectedDateStr ---
+  const eventsForSelectedDate = selectedDateStr
+    ? events.filter(e => e.date === selectedDateStr)
+    : [];
+
+    if (!isDesktop) {
+      // === MOBILE/TABLET: Single-column, mobile-first layout ===
+      return (
+        <div className="app-bg">
+          <MobileHeader onMenuClick={() => setMenuOpen(true)} />
+          <MobileMenuDrawer
+            open={menuOpen}
+            onClose={() => setMenuOpen(false)}
+            upcomingEvents={upcomingEvents}
+            completedEvents={completedEventsForSelectedMonth}
+            onSelectAgenda={() => { setMobileView('agenda'); setMenuOpen(false); }}
+            onSelectMonth={() => { setMobileView('month'); setMenuOpen(false); }}
+            onSelectWeek={() => { setMobileView('week'); setMenuOpen(false); }}
+            onSelectYear={() => { setMobileView('year'); setMenuOpen(false); }}
+            onSelectCompletedEvent={setSelectedCompletedEvent}
+            onDownloadReport={() => { setShowDownloadDialog(true); setMenuOpen(false); }}
+            onAddEvent={handleAddEventClick}
+            onLogin={() => { navigate('/login'); setMenuOpen(false); }}
+            onSignup={() => { navigate('/signup'); setMenuOpen(false); }}
+            isAuthenticated={isAuthenticated}
+            isAdmin={false} // Set to true if user is admin
+            onAdminPanel={() => { navigate('/admin'); setMenuOpen(false); }}
+          />
+          <nav
+            aria-label="View switcher"
             style={{
-              position: 'absolute',
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              gap: 4,
+              margin: '0.5rem auto 1rem auto',
+              width: '100vw',
               left: '50%',
               transform: 'translateX(-50%)',
-              zIndex: 3000,
-              background: '#fff',
-              borderTopLeftRadius: 18,
-              borderTopRightRadius: 18,
-              boxShadow: '0 -2px 16px #0003',
-              maxHeight: '70vh',
-              overflowY: 'auto',
-              padding: '36px 20px 20px 20px',
-              animation: 'slideUp 0.3s',
-              maxWidth: 340,
-              width: '100%',
-              minHeight: 120,
-              margin: '24px auto 0 auto', // margin-top to separate from calendar
+              background: '#f5f6fa',
+              borderRadius: 12,
+              boxShadow: '0 1px 4px #0001',
+              padding: 4,
+              position: 'relative',
+              overflowX: 'auto',
             }}
-            role="dialog"
-            aria-modal="true"
           >
-            <button
-              onClick={() => setSelectedDateStr(null)}
-              aria-label="Close details"
+            {[
+              { key: 'month', label: 'Month' },
+              { key: 'week', label: 'Week' },
+              { key: 'year', label: 'Year' },
+            ].map((view) => (
+              <button
+                key={view.key}
+                onClick={() => setMobileView(view.key)}
+                aria-pressed={mobileView === view.key}
+                style={{
+                  flex: 1,
+                  padding: '0.7rem 0',
+                  background: mobileView === view.key ? '#1976d2' : 'transparent',
+                  color: mobileView === view.key ? '#fff' : '#1976d2',
+                  border: 'none',
+                  borderRadius: 8,
+                  fontWeight: 600,
+                  fontSize: '1rem',
+                  cursor: 'pointer',
+                  transition: 'background 0.2s, color 0.2s',
+                  outline: mobileView === view.key ? '2px solid #1976d2' : 'none',
+                }}
+              >
+                {view.label}
+              </button>
+            ))}
+          </nav>
+          <main style={{ width: '100%', maxWidth: 600, margin: '0 auto' }}>
+            {mobileView === 'agenda' && <AgendaView events={events} />}
+            {mobileView === 'month' && (
+              <CompactMonthView
+                year={viewYear}
+                month={viewMonth}
+                events={events}
+                selectedDateStr={selectedDateStr}
+                onSelectDate={setSelectedDateStr}
+                onPrevMonth={handlePrevMonth}
+                onNextMonth={handleNextMonth}
+              />
+            )}
+            {mobileView === 'week' && (
+              <WeekView
+                weekDate={weekDate}
+                selectedDate={selectedDateStr}
+                onSelectDate={setSelectedDateStr}
+                onPrevWeek={handlePrevWeek}
+                onNextWeek={handleNextWeek}
+                events={events}
+              />
+            )}
+            {mobileView === 'year' && (
+              <YearView
+                initialYear={viewYear}
+                setViewMonth={setViewMonth}
+                setViewYear={setViewYear}
+                setCalendarView={() => setMobileView('month')}
+              />
+            )}
+          </main>
+          <FloatingActionButton onClick={handleAddEventClick} />
+          {/* Event Details Modal/Bottom Sheet for selected date */}
+          {selectedDateStr && !menuOpen && (
+            <div
               style={{
                 position: 'absolute',
-                top: 14,
-                right: 18,
-                zIndex: 10,
+                left: '50%',
+                transform: 'translateX(-50%)',
+                zIndex: 3000,
                 background: '#fff',
-                border: 'none',
-                borderRadius: '50%',
-                width: 36,
-                height: 36,
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                fontSize: '2rem',
-                color: '#1976d2',
-                cursor: 'pointer',
-                boxShadow: '0 1px 4px #0001',
-                padding: 0,
+                borderTopLeftRadius: 18,
+                borderTopRightRadius: 18,
+                boxShadow: '0 -2px 16px #0003',
+                maxHeight: '70vh',
+                overflowY: 'auto',
+                padding: '36px 20px 20px 20px',
+                animation: 'slideUp 0.3s',
+                maxWidth: 340,
+                width: '100%',
+                minHeight: 120,
+                margin: '24px auto 0 auto', // margin-top to separate from calendar
               }}
+              role="dialog"
+              aria-modal="true"
             >
-              ×
-            </button>
-            <EventDetails dateStr={selectedDateStr} getEventColor={getEventColor} events={events} />
-          </div>
-        )}
-        <style>{`
-          @keyframes slideUp {
-            from { transform: translateY(100%); }
-            to { transform: translateY(0); }
-          }
-        `}</style>
-        {showDownloadDialog && (
-          <div id="download-dialog" className="modal">
-            <div className="modal-content">
-              {customRangeMode ? (
-                <>
-                  <label style={{ marginBottom: 8 }}>Start Date: <input type="date" value={customStart} onChange={e => setCustomStart(e.target.value)} /></label>
-                  <label style={{ marginBottom: 16 }}>End Date: <input type="date" value={customEnd} onChange={e => setCustomEnd(e.target.value)} /></label>
-                  <button
-                    className="download-mode"
-                    style={{ background: '#e53940', color: '#fff', fontWeight: 'bold', marginBottom: 16 }}
-                    onClick={() => handleDownloadOption(null)}
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    className="download-mode"
-                    style={{ background: '#1976d2', color: '#fff', fontWeight: 'bold' }}
-                    onClick={handleCustomDownload}
-                  >
-                    Download Custom Range
-                  </button>
-                </>
-              ) : (
-                <>
-                  <h3>Select Report Period</h3>
-                  <button className="download-mode" onClick={() => handleDownloadOption('week')}>Weekly</button>
-                  <button className="download-mode" onClick={() => handleDownloadOption('month')}>Monthly</button>
-                  <button className="download-mode" onClick={() => handleDownloadOption('year')}>Yearly</button>
-                  <button className="download-mode" onClick={() => handleDownloadOption('custom')}>Custom Range</button>
-                  <button className="download-mode" onClick={() => handleDownloadOption(null)}>Cancel</button>
-                </>
-              )}
+              <button
+                onClick={() => setSelectedDateStr(null)}
+                aria-label="Close details"
+                style={{
+                  position: 'absolute',
+                  top: 14,
+                  right: 18,
+                  zIndex: 10,
+                  background: '#fff',
+                  border: 'none',
+                  borderRadius: '50%',
+                  width: 36,
+                  height: 36,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  fontSize: '2rem',
+                  color: '#1976d2',
+                  cursor: 'pointer',
+                  boxShadow: '0 1px 4px #0001',
+                  padding: 0,
+                }}
+              >
+                ×
+              </button>
+              <EventDetails dateStr={selectedDateStr} getEventColor={getEventColor} events={events} />
             </div>
-          </div>
-        )}
-        <BackToTopButton />
-      </div>
-    );
-  }
-
+          )}
+          <style>{`
+            @keyframes slideUp {
+              from { transform: translateY(100%); }
+              to { transform: translateY(0); }
+            }
+          `}</style>
+          {showDownloadDialog && (
+            <div id="download-dialog" className="modal">
+              <div className="modal-content">
+                {customRangeMode ? (
+                  <>
+                    <label style={{ marginBottom: 8 }}>Start Date: <input type="date" value={customStart} onChange={e => setCustomStart(e.target.value)} /></label>
+                    <label style={{ marginBottom: 16 }}>End Date: <input type="date" value={customEnd} onChange={e => setCustomEnd(e.target.value)} /></label>
+                    <button
+                      className="download-mode"
+                      style={{ background: '#e53940', color: '#fff', fontWeight: 'bold', marginBottom: 16 }}
+                      onClick={() => handleDownloadOption(null)}
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      className="download-mode"
+                      style={{ background: '#1976d2', color: '#fff', fontWeight: 'bold' }}
+                      onClick={handleCustomDownload}
+                    >
+                      Download Custom Range
+                    </button>
+                  </>
+                ) : (
+                  <>
+                    <h3>Select Report Period</h3>
+                    <button className="download-mode" onClick={() => handleDownloadOption('week')}>Weekly</button>
+                    <button className="download-mode" onClick={() => handleDownloadOption('month')}>Monthly</button>
+                    <button className="download-mode" onClick={() => handleDownloadOption('year')}>Yearly</button>
+                    <button className="download-mode" onClick={() => handleDownloadOption('custom')}>Custom Range</button>
+                    <button className="download-mode" onClick={() => handleDownloadOption(null)}>Cancel</button>
+                  </>
+                )}
+              </div>
+            </div>
+          )}
+          <BackToTopButton />
+        </div>
+      );
+    }
+  
   // === DESKTOP: Multi-column layout ===
   return (
     <div className="app-bg">
@@ -487,18 +477,24 @@ function Dashboard({ isAuthenticated, refetchEventsRef, viewYear, setViewYear, v
           <button
             className={calendarView === "month" ? "active" : ""}
             onClick={() => setCalendarView("month")}
-          >Month</button>
+          >
+            Month
+          </button>
           <button
             className={calendarView === "week" ? "active" : ""}
             onClick={() => {
               setCalendarView("week");
               if (!selectedDateStr) setSelectedDateStr(new Date().toISOString().slice(0, 10));
             }}
-          >Week</button>
+          >
+            Week
+          </button>
           <button
             className={calendarView === "year" ? "active" : ""}
             onClick={() => setCalendarView("year")}
-          >Year</button>
+          >
+            Year
+          </button>
           <button onClick={handleAddEventClick}>Add an event</button>
         </div>
       </header>
@@ -506,15 +502,19 @@ function Dashboard({ isAuthenticated, refetchEventsRef, viewYear, setViewYear, v
         <aside className="sidebar glass-panel">
           <div className="section-title">Upcoming Events</div>
           <UpcomingEventsList upcomingEvents={upcomingEvents} />
-          <div style={{ width: "100%", marginTop: "20px" }}>
-            <div className="section-title">Completed Events (This Month)</div>
+          <div className="section-title-1">Completed Events (This Month)</div>
+          <div className="left-box" style={{ width: "100%", marginTop: "2px" }}>
+            
             <div className="CompletedEventsDropdown">
               <CompletedEventsDropdown 
                 completedEvents={completedEventsForSelectedMonth} 
                 onSelect={setSelectedCompletedEvent} 
+                
               />
             </div>
-            <div className="completed-event-card-outer" style={{ width: '100%', maxWidth: '220px', minHeight: '60px', margin: '8px auto 0 auto', background: 'none', border: 'none', display: 'flex', justifyContent: 'center' }}>
+            
+          </div>
+          <div className="completed-event-card-outer" style={{ width: '100%', maxWidth: '220px', minHeight: '60px', margin: '2px auto 0 auto', background: 'none', border: 'none', display: 'flex', justifyContent: 'center' }}>
               {selectedCompletedEvent && (
                 <div
                   className="event-item"
@@ -532,23 +532,18 @@ function Dashboard({ isAuthenticated, refetchEventsRef, viewYear, setViewYear, v
                     display: 'flex',
                     flexDirection: 'column',
                     gap: '0',
+                    color:'black'
                   }}
                 >
-                  <div style={{
-                    padding: '16px',
-                    maxHeight: '80px',
-                    overflowY: 'auto',
-                  }}>
+                  <div className="modal-1">
                     <strong>{selectedCompletedEvent.title}</strong>
                     <div>{selectedCompletedEvent.results}</div>
                   </div>
                 </div>
               )}
             </div>
-          </div>
         </aside>
         <main className="calendar-panel glass-panel">
-          {/* Calendar view switching logic */}
           {calendarView === "month" && (
             <MonthView
               year={viewYear}
@@ -581,11 +576,19 @@ function Dashboard({ isAuthenticated, refetchEventsRef, viewYear, setViewYear, v
           )}
         </main>
         <aside className="right-panel glass-panel">
-          <button className="download-btn" onClick={handleDownloadClick}><span className="button-content">Download Report</span></button>
+          <button className="download-btn" onClick={handleDownloadClick}>
+            <span className="button-content">Download Report</span>
+          </button>
           {!showCompletedDropdown && (
             <div className="section-title" style={{ marginTop: 1 }}>Events on Selected Day</div>
           )}
-          <EventDetails dateStr={selectedDateStr} getEventColor={getEventColor} events={events} />
+
+          {/* *** Updated here: pass filtered events only for selected date *** */}
+          <EventDetails 
+            dateStr={selectedDateStr} 
+            getEventColor={getEventColor} 
+            events={eventsForSelectedDate} 
+          />
         </aside>
       </div>
       {showDownloadDialog && (
@@ -593,9 +596,12 @@ function Dashboard({ isAuthenticated, refetchEventsRef, viewYear, setViewYear, v
           <div className="modal-content">
             {customRangeMode ? (
               <>
-                
-                <label className="l1" style={{ marginBottom: 8, color: '#000' }}>Start Date: <input type="date" value={customStart} onChange={e => setCustomStart(e.target.value)} /></label>
-                <label className="l1" style={{ marginBottom: 16, color: '#000' }}>End Date: <input type="date" value={customEnd} onChange={e => setCustomEnd(e.target.value)} /></label>
+                <label className="l1" style={{ marginBottom: 8, color: '#000' }}>
+                  Start Date: <input type="date" value={customStart} onChange={e => setCustomStart(e.target.value)} />
+                </label>
+                <label className="l1" style={{ marginBottom: 16, color: '#000' }}>
+                  End Date: <input type="date" value={customEnd} onChange={e => setCustomEnd(e.target.value)} />
+                </label>
                 <button
                   className="download-mode"
                   style={{ background: '#e53940', color: '#fff', fontWeight: 'bold', marginBottom: 16 }}
@@ -603,7 +609,6 @@ function Dashboard({ isAuthenticated, refetchEventsRef, viewYear, setViewYear, v
                 >
                   Cancel
                 </button>
-                
                 <button
                   className="download-mode"
                   style={{ background: '#1976d2', color: '#fff', fontWeight: 'bold' }}
@@ -644,12 +649,37 @@ export default function App() {
       <Routes>
         <Route path="/login" element={<LoginPage setIsAuthenticated={setIsAuthenticated} />} />
         <Route path="/signup" element={<SignupPage />} />
-        <Route path="/event-form" element={isAuthenticated ? <EventForm onEventAdded={() => {
-          if (refetchEventsRef.current) refetchEventsRef.current();
-        }} /> : <Navigate to="/login" />} />
-        <Route path="/" element={<Dashboard isAuthenticated={isAuthenticated} refetchEventsRef={refetchEventsRef} viewYear={viewYear} setViewYear={setViewYear} viewMonth={viewMonth} setViewMonth={setViewMonth} setViewDate={setViewDate} />} />
+        <Route
+          path="/event-form"
+          element={
+            isAuthenticated ? (
+              <EventForm
+                onEventAdded={() => {
+                  if (refetchEventsRef.current) refetchEventsRef.current();
+                }}
+              />
+            ) : (
+              <Navigate to="/login" />
+            )
+          }
+        />
+        <Route
+          path="/"
+          element={
+            <Dashboard
+              isAuthenticated={isAuthenticated}
+              refetchEventsRef={refetchEventsRef}
+              viewYear={viewYear}
+              setViewYear={setViewYear}
+              viewMonth={viewMonth}
+              setViewMonth={setViewMonth}
+              setViewDate={setViewDate}
+            />
+          }
+        />
         <Route path="*" element={<Navigate to="/" replace />} />
         <Route path="/admin" element={<AdminPanel />} />
+        <Route path="/admin/delete-events" element={<DeleteEventContainer />} />
       </Routes>
     </Router>
   );

@@ -396,48 +396,53 @@ app.get("/api/reports/download", async (req, res) => {
 
     const today = moment();
     if (start && end) {
-      startDate = moment(start).format("YYYY-MM-DD");
-      endDate = moment(end).format("YYYY-MM-DD");
+      startDate = moment(start).toDate();
+      endDate = moment(end).toDate();
     } else {
       switch (range) {
         case "week":
-          startDate = today.clone().startOf("week").format("YYYY-MM-DD");
-          endDate = today.clone().endOf("week").format("YYYY-MM-DD");
+          startDate = today.clone().startOf("week").toDate();
+          endDate = today.clone().endOf("week").toDate();
           break;
         case "month":
-          startDate = today.clone().startOf("month").format("YYYY-MM-DD");
-          endDate = today.clone().endOf("month").format("YYYY-MM-DD");
+          startDate = today.clone().startOf("month").toDate();
+          endDate = today.clone().endOf("month").toDate();
           break;
         case "year":
-          startDate = today.clone().startOf("year").format("YYYY-MM-DD");
-          endDate = today.clone().endOf("year").format("YYYY-MM-DD");
+          startDate = today.clone().startOf("year").toDate();
+          endDate = today.clone().endOf("year").toDate();
           break;
         default:
           try {
             const rangeObj = JSON.parse(range);
-            startDate = moment(rangeObj.start).format("YYYY-MM-DD");
-            endDate = moment(rangeObj.end).format("YYYY-MM-DD");
+            startDate = moment(rangeObj.start).toDate();
+            endDate = moment(rangeObj.end).toDate();
           } catch (e) {
-            startDate = today.format("YYYY-MM-DD");
-            endDate = today.format("YYYY-MM-DD");
+            startDate = today.toDate();
+            endDate = today.toDate();
           }
       }
     }
 
-    const listings = await Listing.find({
-      date: { $gte: startDate, $lte: endDate },
-    });
+
+  const listings = await Listing.find({
+    date: { $gte: startDate, $lte: endDate },
+  });
+
+
+
+    console.log('Listings fetched for report:', listings);
 
     if (format === "excel") {
       // Generate Excel report
       const XLSX = require("xlsx");
-      const data = listings.map((listing) => ({
-        Title: listing.title,
-        Organizer: listing.organizer,
-        Date: listing.date,
-        Time: listing.time,
-        Location: listing.location,
-        Description: listing.description,
+      const data = listings.map((listings) => ({
+        Title: listings.title,
+        Organizer: listings.organizer,
+        Date: listings.date,
+        Time: listings.time,
+        Location: listings.location,
+        Description: listings.description,
       }));
 
       const worksheet = XLSX.utils.json_to_sheet(data);
@@ -461,15 +466,15 @@ app.get("/api/reports/download", async (req, res) => {
       pdfDoc.pipe(res);
       pdfDoc.fontSize(24).text("Event Report", 100, 80);
 
-      listings.forEach((listing, index) => {
+      listings.forEach((listings, index) => {
         pdfDoc.moveDown();
         pdfDoc.fontSize(16).text(`Event #${index + 1}`);
-        pdfDoc.fontSize(12).text(`Title: ${listing.title}`);
-        pdfDoc.text(`Organizer: ${listing.organizer}`);
-        pdfDoc.text(`Date: ${listing.date}`);
-        pdfDoc.text(`Time: ${listing.time}`);
-        pdfDoc.text(`Location: ${listing.location}`);
-        pdfDoc.text(`Description: ${listing.description}`);
+        pdfDoc.fontSize(12).text(`Title: ${listings.title}`);
+        pdfDoc.text(`Organizer: ${listings.organizer}`);
+        pdfDoc.text(`Date: ${listings.date}`);
+        pdfDoc.text(`Time: ${listings.time}`);
+        pdfDoc.text(`Location: ${listings.location}`);
+        pdfDoc.text(`Description: ${listings.description}`);
       });
 
       pdfDoc.end();
@@ -479,6 +484,8 @@ app.get("/api/reports/download", async (req, res) => {
     res.status(500).send("Error generating report");
   }
 });
+
+
 app.listen(port, () => {
   console.log(`Server is running on port ${port}`);
 });

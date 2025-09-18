@@ -807,3 +807,14 @@ a{
 .weekview-list::-webkit-scrollbar {
   display: none;
 }
+.uplist{
+    margin-top: 1px;
+}
+.uplist{
+      scrollbar-width: none;
+  -ms-overflow-style: none;
+  scroll-behavior: smooth;
+}
+.uplist::-webkit-scrollbar{
+    display: none;
+}

@@ -22,7 +22,7 @@ export default function MonthView({
   onGoToWeekView, // <--- NEW PROP
   events = []
 }) {
-  console.log("MonthView props - year:", year, "month:", month);
+  // console.log("MonthView props - year:", year, "month:", month);
   const firstDay = new Date(year, month, 1);
   const firstDayIndex = firstDay.getDay();
   const lastDay = new Date(year, month + 1, 0);
@@ -50,7 +50,7 @@ export default function MonthView({
         className={"day" + (selectedDateStr === dateStr ? " selected" : "")}
         onClick={() => onSelectDate(dateStr)}
       >
-        <span className="day-number">{day}</span>
+        <span className="day-number">{day.toString().padStart(2, '0')}</span>
         {dayEvents.length > 0 && (
           <EventOverflowIndicator
             events={dayEvents}
@@ -79,7 +79,7 @@ export default function MonthView({
   for (let i = 1; i <= nextDays; i++) {
     days.push(
       <div key={"next-" + i} className="day calendar-other">
-        <span className="day-number">{i}</span>
+        <span className="day-number">{i.toString().padStart(2, '0')}</span>
       </div>
     );
   }

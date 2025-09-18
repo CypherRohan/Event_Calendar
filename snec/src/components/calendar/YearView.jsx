@@ -38,49 +38,79 @@ function getMonthMatrix(year, month) {
 export default function YearView({
   initialYear = new Date().getFullYear(),
   setViewDate,
-  setCalendarView
+  setCalendarView,
+  // Mobile props (for backward compatibility)
+  setViewMonth,
+  setViewYear
 }) {
   const [year, setYear] = useState(initialYear);
+  const [quarter, setQuarter] = useState(0); // 0: Jan-Apr, 1: May-Aug, 2: Sep-Dec
   const isDesktop = useIsDesktop(1024);
   const today = new Date();
   const currentMonth = today.getMonth();
   const currentYear = today.getFullYear();
   const isCurrentYear = year === currentYear;
 
+  // Helper function to handle view updates for both desktop and mobile
+  const updateView = (newYear, newMonth) => {
+    if (setViewDate) {
+      // Desktop version
+      setViewDate({ year: newYear, month: newMonth });
+    } else if (setViewYear && setViewMonth) {
+      // Mobile version
+      setViewYear(newYear);
+      setViewMonth(newMonth);
+    }
+  };
+
   const handlePrevQuarter = () => {
     if (quarter === 0) {
       setQuarter(2);
-      setYear(prev => prev - 1);
-      setViewDate({ year: prev.year - 1, month: 0 });
+      setYear(prev => {
+        const newYear = prev - 1;
+        updateView(newYear, 0);
+        return newYear;
+      });
     } else {
       setQuarter(prev => prev - 1);
     }
   };
 
   const handlePrevYear = () => {
-    setYear(prev => prev - 1);
-    setViewDate({ year: prev.year - 1, month: 0 });
+    setYear(prev => {
+      const newYear = prev - 1;
+      updateView(newYear, 0);
+      return newYear;
+    });
   };
 
   const handleNextQuarter = () => {
     if (quarter === 2) {
       setQuarter(0);
-      setYear(prev => prev + 1);
-      setViewDate({ year: prev.year + 1, month: 0 });
+      setYear(prev => {
+        const newYear = prev + 1;
+        updateView(newYear, 0);
+        return newYear;
+      });
     } else {
       setQuarter(prev => prev + 1);
     }
   };
 
   const handleNextYear = () => {
-    setYear(prev => prev + 1);
-    setViewDate({ year: prev.year + 1, month: 0 });
+    setYear(prev => {
+      const newYear = prev + 1;
+      updateView(newYear, 0);
+      return newYear;
+    });
   };
 
   const handleMonthClick = (monthIndex) => {
     console.log("Month clicked:", monthIndex, "Year:", year);
-    setViewDate({ year, month: monthIndex });
-    setCalendarView("month");
+    updateView(year, monthIndex);
+    if (setCalendarView) {
+      setCalendarView("month");
+    }
     console.log("Switching to month view");
   };
 
@@ -98,8 +128,11 @@ export default function YearView({
         }}>
           <button
             onClick={() => {
-              setYear(prev => prev - 1);
-              setViewDate({ year: year - 1, month: 0 });
+              setYear(prev => {
+                const newYear = prev - 1;
+                updateView(newYear, 0);
+                return newYear;
+              });
             }}
             style={{
               background: 'none',
@@ -119,8 +152,11 @@ export default function YearView({
           <span style={{ fontSize: 32, fontWeight: 700, color: '#e53935', minWidth: 80, textAlign: 'center' }}>{year}</span>
           <button
             onClick={() => {
-              setYear(prev => prev + 1);
-              setViewDate({ year: year + 1, month: 0 });
+              setYear(prev => {
+                const newYear = prev + 1;
+                updateView(newYear, 0);
+                return newYear;
+              });
             }}
             style={{
               background: 'none',
@@ -199,8 +235,6 @@ export default function YearView({
   }
 
   // --- DESKTOP: Keep existing layout ---
-  const [quarter, setQuarter] = useState(0); // 0: Jan-Apr, 1: May-Aug, 2: Sep-Dec
-
   const monthsToShow = [quarter * 4, quarter * 4 + 1, quarter * 4 + 2, quarter * 4 + 3];
 
   return (
