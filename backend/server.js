@@ -489,3 +489,6 @@ app.get("/api/reports/download", async (req, res) => {
 app.listen(port, () => {
   console.log(`Server is running on port ${port}`);
 });
+
+console.log("Mongo URI in Render:", process.env.MONGO_URI);
+
